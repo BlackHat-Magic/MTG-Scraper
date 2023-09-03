@@ -78,12 +78,9 @@ def download_image(url, artist):
     image = requests.get(url=image_url).content
 
     # card info is in img tag metadata; extract it
-    card_info = image_element.get("alt", "").replace(" MtG Art", "").split(" - ")
-    card_name = card_info[0]
-    if(len(card_info) > 1):
-        card_set = card_info[1]
-    else:
-        card_set = ""
+    title = page.find("title")
+    card_name = title.text.split(" MtG Art from ")[0]
+    card_set = title.text.split(" MtG Art from ")[1].split(f" by {artist.name}")[0]
 
     # write image to disk
     with open(f"images/{artist.name.replace(' ', '-').replace('/', '_')}--{card_name.replace(' ', '-').replace('/', '_')}--{card_set.replace(' ', '-').replace('/', '_')}.png", "wb") as f:
@@ -94,7 +91,8 @@ def download_image(url, artist):
         name=card_name,
         set_=card_set,
         aomtg_url=image_url,
-        artist=artist
+        artist=artist,
+        on_aomtg=True
     )
     session.add(new_work)
 
